@@ -1,0 +1,39 @@
+{
+  "name": "@mpa-ssr/ui",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": {
+        "types": "./dist/main.d.mts",
+        "default": "./dist/main.mjs"
+      },
+      "require": {
+        "types": "./dist/main.d.ts",
+        "default": "./dist/main.js"
+      }
+    }
+  },
+  "types": "./dist/main.d.ts",
+  "scripts": {
+    "start": "tsup --watch",
+    "dev": "tsup --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "sideEffect": false,
+  "dependencies": {
+    "@reactuses/core": "^4.0.5"
+  },
+  "devDependencies": {
+    "react": "18.3.0-canary-493f72b0a-20230727",
+    "react-dom": "18.3.0-canary-493f72b0a-20230727"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "@mpa-ssr/ros",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "dev": "tsx src/store/rootStore.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/plugin-proposal-decorators": "^7.22.7",
+    "@types/serialize-javascript": "^5.0.2",
+    "jest-environment-jsdom": "^29.6.4",
+    "jest-environment-node": "^29.6.2",
+    "react": "18.3.0-canary-493f72b0a-20230727",
+    "react-dom": "18.3.0-canary-493f72b0a-20230727"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "dependencies": {
+    "@mpa-ssr/core-utils": "workspace:*",
+    "@types/use-sync-external-store": "^0.0.3",
+    "jsondiffpatch": "^0.5.0",
+    "rfc6902": "^5.0.1",
+    "serialize-javascript": "^6.0.1",
+    "use-sync-external-store": "^1.2.0"
+  }
+}

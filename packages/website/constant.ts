@@ -1,0 +1,1 @@
+export const STREAMING_DESERIALIZATION_EVENT = 'streaming_deserialization_event';

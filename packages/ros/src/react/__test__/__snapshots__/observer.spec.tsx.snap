@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`observers useImperativeHandle and forwardRef should work with useObserver 1`] = `[MockFunction]`;

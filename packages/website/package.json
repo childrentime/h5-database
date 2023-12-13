@@ -1,0 +1,29 @@
+{
+  "name": "website",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "x dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/fs-extra": "^11.0.1",
+    "@types/react": "^18.2.17",
+    "@types/react-dom": "^18.2.7",
+    "@types/serialize-javascript": "^5.0.2",
+    "fs-extra": "^11.1.1",
+    "mobx": "^6.10.0",
+    "mobx-react": "^9.0.0",
+    "react": "18.3.0-canary-493f72b0a-20230727",
+    "react-dom": "18.3.0-canary-493f72b0a-20230727",
+    "serialize-javascript": "^6.0.1",
+    "@mpa-ssr/impr": "workspace:*",
+    "@mpa-ssr/ui": "workspace:*"
+  },
+  "devDependencies": {
+    "@mpa-ssr/core": "workspace:*"
+  }
+}

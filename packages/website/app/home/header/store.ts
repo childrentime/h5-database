@@ -1,24 +1,29 @@
-import { action, makeObservable, observable } from "mobx";
+import { action, observable } from "mobx";
+import { sleep } from "../../../utils/sleep";
+import { ChildStore } from "../../../store";
+import { pending, serialize } from "../../../decorator/stream";
+import { streamKey } from "./constant";
 
-export class ComponentStore {
-  @observable title = "unfulfilled data";
+export class ComponentStore extends ChildStore {
+  @serialize @observable accessor title: string  = "1231";
 
-  constructor() {
-    makeObservable(this);
+  @serialize @observable accessor header1 = 'fallbakc'
+
+  getHeader1 = async () => {
+    await sleep(3000);
+    this.header1 = 'header1'
   }
 
+
+  @pending(streamKey)
   @action
-  fulFillData = async () => {
-    const data = (await new Promise((resolve) => {
+  async fulFillData (d?: string): Promise<string> {
+    const data = d || (await new Promise((resolve) => {
       setTimeout(() => {
         resolve("fulfilled data");
       }, 0);
     })) as string;
     this.title = data;
-  };
-
-  @action
-  fromJS = (data) => {
-    this.title = data.title;
+    return data;
   };
 }

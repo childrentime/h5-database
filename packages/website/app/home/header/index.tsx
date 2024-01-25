@@ -1,19 +1,19 @@
 import { MobXProviderContext, observer } from "mobx-react";
 import styles from "./index.module.scss";
 import { useStyles } from "@mpa-ssr/core";
-import { use, useContext } from "react";
+import { useContext } from "react";
 import { AppStore } from "../store";
+import { throwIfUnresolved } from "../../../decorator/stream";
+import { streamKey } from "./constant";
 
 const Header = observer(() => {
   const { store } = useContext(MobXProviderContext);
-  const { componentData, promises } = store as AppStore;
+  const { componentData } = store as AppStore;
   const { title } = componentData;
-  // if (typeof window === "undefined") {
-    use(promises[0]);
-  // }
-  console.log('????')
 
+  throwIfUnresolved(streamKey)
   useStyles(styles);
+
   return (
     <div
       className={styles.red}

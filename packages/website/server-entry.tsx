@@ -6,19 +6,13 @@ import { InsertCss, StyleContext, ISOStyle } from "@mpa-ssr/core";
 import { Transform } from "stream";
 import { Provider, enableStaticRendering } from "mobx-react";
 import { AppStore } from "./app/home/store";
-import serialize from "serialize-javascript";
 import { STREAMING_DESERIALIZATION_EVENT } from "./constant";
+import { toJS } from "./store/utils";
+import serializeJavascript from "serialize-javascript";
 
 enableStaticRendering(true);
 const app = express();
 
-function joinChunk<Chunk extends { toString: () => string }>(
-  before = "",
-  chunk: Chunk,
-  after = ""
-) {
-  return `${before}${chunk.toString()}${after}`;
-}
 
 app.get("*", async (req, res) => {
   const { url } = req;
@@ -45,9 +39,25 @@ app.get("*", async (req, res) => {
     });
   };
 
+  const preloadJS = jsArr.map(js => {
+    return `<link rel="preload" href="${js}" as="script"/>`
+  })
+
+  // SSR之前，js资源可以先发了preload
+  res.setHeader("content-type", "text/html");
+  res.write(`<!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React App</title>
+    ${preloadJS}
+    `)
+
   const store = new AppStore();
-  await store.getInitPromise();
-  const resultArr = store.getStreamPromise();
+  const promiseArr = store.streamSSR()
+  await store.SSR();
 
   const jsx = (
     <StyleContext.Provider value={{ insertCss }}>
@@ -60,43 +70,13 @@ app.get("*", async (req, res) => {
   const { pipe, abort } = renderToPipeableStream(jsx, {
     bootstrapScripts: [...jsArr],
     onShellReady() {
+
       const injectableTransform = new Transform({
-        transform(_chunk, _encoding, callback) {
-          try {
-            let chunk = _chunk;
-            if (criticalStyles.size !== 0) {
-              if (resultArr.length !== 0) {
-                const result = resultArr[0];
-                const applyScript = `<script async>
-                const event = new CustomEvent('${STREAMING_DESERIALIZATION_EVENT}', {
-                  detail: ${serialize(result, { isJSON: true })}
-                });document.dispatchEvent(event);</script>`;
-                chunk = joinChunk(applyScript, chunk);
-              }
-
-              const styles = [...criticalStyles.keys()]
-                .map((key) => {
-                  const style = criticalStyles.get(key);
-                  return `<style type="text/css" id=${key}>${style}</style>`;
-                })
-                .join("");
-              const applyStyle = `<script async>document.head.insertAdjacentHTML("beforeend", ${JSON.stringify(
-                styles
-              )});</script>`;
-              chunk = joinChunk(applyStyle, chunk);
-            }
-
-            this.push(chunk);
-            callback();
-          } catch (e) {
-            if (e instanceof Error) {
-              callback(e);
-            } else {
-              callback(new Error("Received unkown error when streaming"));
-            }
-          }
-        },
-      });
+        transform(chunk, encoding, callback) {
+          this.push(chunk);
+          callback();
+        }
+      })
 
       const styles = [...criticalStyles.keys()]
         .map((key) => {
@@ -105,22 +85,40 @@ app.get("*", async (req, res) => {
         })
         .join("");
 
-      res.statusCode = 200;
-      res.setHeader("content-type", "text/html");
-      res.write(`<!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>React App</title>
+      res.write(`
         ${styles}
-        <script>window.data=${serialize(store, { isJSON: true })}</script>
+        <script>window.data=${serializeJavascript(toJS(store),{isJSON: true})}</script>
       </head>
       <body>
         <div id="main">`);
       criticalStyles.clear();
-      pipe(injectableTransform).pipe(res);
+      pipe(injectableTransform).pipe(res,{end: false});
+      
+      // 流式输出 模块的关键性CSS 部分补全store
+      promiseArr.forEach(promise => {
+        promise.then(data => {
+          console.log('chunk data',data)
+          const applyScript = `<script async>
+          const event = new CustomEvent('${STREAMING_DESERIALIZATION_EVENT}', {
+            detail: ${serializeJavascript(data,{isJSON: true})}
+          });document.dispatchEvent(event);</script>`;
+          const styles = [...criticalStyles.keys()]
+          .map((key) => {
+            const style = criticalStyles.get(key);
+            return `<style type="text/css" id=${key}>${style}</style>`;
+          })
+          .join("");
+          const applyStyle = `<script async>document.head.insertAdjacentHTML("beforeend", ${JSON.stringify(
+            styles
+          )});</script>`;
+          res.write(`${applyStyle}${applyScript}`);
+          criticalStyles.clear();
+        })
+      })
+      // 所有流式接口都完成后，结束res
+      Promise.all(promiseArr).then(() => {
+        res.end();
+      })
     },
     onShellError(error) {
       console.log(error);
@@ -135,7 +133,7 @@ app.get("*", async (req, res) => {
 
   setTimeout(() => {
     abort();
-    // fallback 到csr
+    //TODO: fallback 到csr
   }, 10000);
 });
 

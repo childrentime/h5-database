@@ -21,7 +21,10 @@ const babelConfig = (isWebTarget) => {
       "@babel/preset-typescript",
     ],
     plugins: [
-      ["@babel/plugin-proposal-decorators", { legacy: true }],
+      ["@babel/plugin-proposal-decorators",{
+        "version": "2023-05"
+      }],
+      ["@babel/plugin-transform-class-static-block"]
       ["@babel/plugin-proposal-class-properties", { loose: false }],
       process.env.NODE_ENV !== "production" &&
         isWebTarget &&

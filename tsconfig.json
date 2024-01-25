@@ -5,7 +5,7 @@
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "strict": true,
+    "strict": false,
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "declaration": true,
@@ -17,7 +17,7 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
   },
   "exclude": [
     "node_modules",

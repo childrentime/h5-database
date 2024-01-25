@@ -18,6 +18,13 @@ const dev = () => {
   let initialized = false;
   const server = express();
 
+  process.on("uncaughtException", (e) => {
+    console.error("uncaughtException", e);
+  });
+  process.on("unhandledRejection", (e) => {
+    console.info("unhandledRejection:", e);
+  });
+
   clientConfig.plugins.push(new webpack.HotModuleReplacementPlugin());
   Object.keys(clientConfig.entry).forEach(function (name) {
     clientConfig.entry[name].unshift(hotMiddlewareScript);

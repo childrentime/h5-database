@@ -3,6 +3,7 @@ import Header from "./header";
 import styles from "./index.module.scss";
 import { useStyles } from "@mpa-ssr/core";
 import { MobXProviderContext, observer } from "mobx-react";
+import { Header1 } from "./header/header1";
 
 
 const Home = observer(() => {
@@ -12,6 +13,7 @@ const Home = observer(() => {
 
   return (
     <div>
+      <Header1/>
       <Suspense>
         <Header />
       </Suspense>

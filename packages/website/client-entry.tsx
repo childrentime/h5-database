@@ -5,12 +5,9 @@ import { Provider } from "mobx-react";
 import { AppStore } from "./app/home/store";
 import { ImprContext } from "@mpa-ssr/impr";
 import { STREAMING_DESERIALIZATION_EVENT } from "./constant";
+import { promiseMap, promiseStatusMap } from "./decorator/stream";
 
 const startApp = (Page: () => JSX.Element) => {
-  /**
-   * 反序列化store 在pipe之前在window上挂载 rawData
-   */
-  console.log("page", Page);
   const insertCss: InsertCss = (styles) => {
     const removeCss = styles.map((style) => style._insertCss());
     return () => removeCss.forEach((dispose) => dispose());
@@ -18,12 +15,10 @@ const startApp = (Page: () => JSX.Element) => {
 
   const store = new AppStore();
   const data = (window as any).data;
-  store.fromJS(data);
-  store.getStreamPromise();
+  store.fromSSR(data);
+  console.log('store',data,store)
 
-  console.log('store',store);
   const root = document.getElementById("main") as HTMLElement;
-
   hydrateRoot(
     root,
     <StrictMode>
@@ -41,12 +36,17 @@ const startApp = (Page: () => JSX.Element) => {
     </StrictMode>
   );
 
+  // 同步客户端/服务端promise
   document.addEventListener(STREAMING_DESERIALIZATION_EVENT , (event) => {
     const { detail: data } = event as CustomEvent;
-    /** 还需要的数据，知道自己是数组中第几个请求 然后把这个对应的promise resolve掉 */
-    const { key, value } = data;
-    // @ts-ignore
-    store[key].fromJS(value);
+    console.log('data',data)
+    const [key,value] = data;
+    const promise = promiseMap.get(key)!;
+    promise(value).then(() => {
+      promiseStatusMap.set(key,'settled')
+    }).catch(() => {
+      promiseStatusMap.set(key,'settled')
+    })
   });
 };
 

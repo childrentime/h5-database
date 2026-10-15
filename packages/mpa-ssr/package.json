@@ -65,7 +65,7 @@
     "sass": "^1.64.1",
     "sass-loader": "^13.3.2",
     "webpack": "^5.88.2",
-    "webpack-dev-middleware": "^6.1.1",
+    "webpack-dev-middleware": "^7.4.6",
     "webpack-hot-middleware": "^2.25.4",
     "webpack-node-externals": "^3.0.0",
     "webpackbar": "^5.0.2"

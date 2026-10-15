@@ -25,9 +25,8 @@
   "dependencies": {
     "@mpa-ssr/core-utils": "workspace:*",
     "@types/use-sync-external-store": "^0.0.3",
-    "jsondiffpatch": "^0.5.0",
     "rfc6902": "^5.0.1",
-    "serialize-javascript": "^6.0.1",
+    "serialize-javascript": "^7.0.5",
     "use-sync-external-store": "^1.2.0"
   }
 }
